@@ -23,12 +23,6 @@
 #include <cstdio>
 // #include "hash_grid_accelerator.cuh"
 
-
-#define CHECK_IN_CUDA(x) TORCH_CHECK(x.device().is_cuda(), #x, " must be a CUDA tensor")
-#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x, " must be contiguous")
-#define CHECK_IS_INT(x) TORCH_CHECK(x.scalar_type() == at::ScalarType::Int, #x, " must be int")
-#define CHECK_IS_FLOAT(x) TORCH_CHECK(x.scalar_type() == at::ScalarType::Float || x.scalar_type() == at::ScalarType::Half || x.scalar_type() == at::ScalarType::Double, #x " must be a floating tensor")
-
 #include "hash_grid_accelerator.cuh"
 #include <math.h>
 
@@ -69,20 +63,6 @@ void grid_encode_forward(const at::Tensor input, const at::Tensor memory, const 
     // offset records how to divide the grid
     // output is the rgb value of the points
     // 我觉得他们不应该是const。
-    CHECK_IN_CUDA(input);
-    CHECK_IN_CUDA(memory);
-    CHECK_IN_CUDA(offset);
-    CHECK_IN_CUDA(output);
-
-    CHECK_CONTIGUOUS(input);
-    CHECK_CONTIGUOUS(memory);
-    CHECK_CONTIGUOUS(offset);
-    CHECK_CONTIGUOUS(output);
-
-    CHECK_IS_FLOAT(input);
-    CHECK_IS_FLOAT(memory);
-    CHECK_IS_INT(offset);
-    CHECK_IS_FLOAT(output);
 
     // to make it more clear, we use some variables to represent the shape of the tensors instead of using size directly
     const uint32_t D = input.size(1);
@@ -340,23 +320,6 @@ void grid_encode_backward(const at::Tensor grad,
                           const at::Tensor resolution_list, const at::Tensor side_length_list,
                           const uint32_t T)
 {
-    CHECK_IN_CUDA(grad);
-    CHECK_IN_CUDA(input);
-    CHECK_IN_CUDA(memory);
-    CHECK_IN_CUDA(offset);
-    CHECK_IN_CUDA(new_memory_head);
-
-    CHECK_CONTIGUOUS(grad);
-    CHECK_CONTIGUOUS(input);
-    CHECK_CONTIGUOUS(memory);
-    CHECK_CONTIGUOUS(offset);
-    CHECK_CONTIGUOUS(new_memory_head);
-
-    CHECK_IS_FLOAT(grad);
-    CHECK_IS_FLOAT(input);
-    CHECK_IS_FLOAT(memory);
-    CHECK_IS_INT(offset);
-    CHECK_IS_FLOAT(new_memory_head);
 
     const uint32_t D = input.size(1);
     const uint32_t F = memory.size(1);

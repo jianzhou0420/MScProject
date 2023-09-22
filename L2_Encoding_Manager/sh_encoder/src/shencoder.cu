@@ -13,12 +13,6 @@
 #include <cstdio>
 
 
-#define CHECK_CUDA(x) TORCH_CHECK(x.device().is_cuda(), #x " must be a CUDA tensor")
-#define CHECK_CONTIGUOUS(x) TORCH_CHECK(x.is_contiguous(), #x " must be a contiguous tensor")
-#define CHECK_IS_INT(x) TORCH_CHECK(x.scalar_type() == at::ScalarType::Int, #x " must be an int tensor")
-#define CHECK_IS_FLOATING(x) TORCH_CHECK(x.scalar_type() == at::ScalarType::Float || x.scalar_type() == at::ScalarType::Half || x.scalar_type() == at::ScalarType::Double, #x " must be a floating tensor")
-
-
 template <typename T>
 __host__ __device__ T div_round_up(T val, T divisor) {
 	return (val + divisor - 1) / divisor;
@@ -68,18 +62,6 @@ void sh_encode_forward_cuda(const scalar_t *inputs, scalar_t *outputs, const uin
 
 
 void sh_encode_forward(at::Tensor inputs, at::Tensor outputs, const uint32_t B, const uint32_t D, const uint32_t C, at::optional<at::Tensor> dy_dx) {
-    CHECK_CUDA(inputs);
-    CHECK_CUDA(outputs);
-    // CHECK_CUDA(dy_dx);
-    
-    CHECK_CONTIGUOUS(inputs);
-    CHECK_CONTIGUOUS(outputs);
-    // CHECK_CONTIGUOUS(dy_dx);
-
-    CHECK_IS_FLOATING(inputs);
-    CHECK_IS_FLOATING(outputs);
-    // CHECK_IS_FLOATING(dy_dx);
-
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
     inputs.scalar_type(), "sh_encode_forward_cuda", ([&] {
 		sh_encode_forward_cuda<scalar_t>(inputs.data_ptr<scalar_t>(), outputs.data_ptr<scalar_t>(), B, D, C, dy_dx.has_value() ? dy_dx.value().data_ptr<scalar_t>() : nullptr);
